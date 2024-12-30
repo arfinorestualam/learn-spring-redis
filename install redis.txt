@@ -1,0 +1,12 @@
+i'm using mac m1, so i'll share how to install redis on mac apple chip.
+
+1. you need homebrew, if you have skip to number 2, if you don't, just run this on your terminal :
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+2. install redis using homebrew :
+    brew install redis
+3. run redis server :
+    brew services start redis
+4. test it with ping like this :
+    redis-cli ping -> if terminal answered it with PONG you good to go.
+5. now to stop redis before off the screen :
+    brew services stop redis
