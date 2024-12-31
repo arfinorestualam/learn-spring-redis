@@ -21,6 +21,8 @@ public class StringTest {
     }
 
     //test for using value operation
+    //cause data structure in redis most of them using String, we can use key-value which
+    //available in value operation class
     @Test
     void string() throws InterruptedException {
         ValueOperations<String, String> ops = template.opsForValue();
@@ -28,7 +30,7 @@ public class StringTest {
         ops.set("name", "world", Duration.ofSeconds(2));
         Assertions.assertEquals("world", ops.get("name"));
 
-        Thread.sleep(Duration.ofSeconds(3));
+        Thread.sleep(Duration.ofSeconds(3).toMillis());
         Assertions.assertNull(ops.get("name"));
     }
 }
