@@ -10,3 +10,5 @@ i'm using mac m1, so i'll share how to install redis on mac apple chip.
     redis-cli ping -> if terminal answered it with PONG you good to go.
 5. now to stop redis before off the screen :
     brew services stop redis
+
+note : please run the redis server, the test will fail if you didn't do that.
