@@ -1,14 +1,20 @@
 package pzn.redis;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class RedisTest {
@@ -18,7 +24,7 @@ public class RedisTest {
 
     @Test
     void redisTemplate() {
-        Assertions.assertNotNull(template);
+        assertNotNull(template);
     }
 
     //test for using value operation
@@ -29,10 +35,11 @@ public class RedisTest {
         ValueOperations<String, String> ops = template.opsForValue();
 
         ops.set("name", "world", Duration.ofSeconds(2));
-        Assertions.assertEquals("world", ops.get("name"));
+        assertEquals("world", ops.get("name"));
 
         Thread.sleep(Duration.ofSeconds(3).toMillis());
-        Assertions.assertNull(ops.get("name"));
+        assertNull(ops.get("name"));
+        template.delete("name");
     }
 
     //test for using and manipulate list operation
@@ -47,10 +54,31 @@ public class RedisTest {
         //the data of the list will be fin,world,fi
 
         //to get data and release from the left, using leftPop
-        Assertions.assertEquals("fin", ops.leftPop("names"));
-        Assertions.assertEquals("world", ops.leftPop("names"));
-        Assertions.assertEquals("fi", ops.leftPop("names"));
+        assertEquals("fin", ops.leftPop("names"));
+        assertEquals("world", ops.leftPop("names"));
+        assertEquals("fi", ops.leftPop("names"));
 
+        template.delete("names");
+    }
 
+    //test for using and manipulate set operation
+    @Test
+    void set() {
+        SetOperations<String, String> ops = template.opsForSet();
+        //cause data on set can't be same, so if the value we add same they'll read by 1
+        //method add to adding key with value to set
+        ops.add("students","fin");
+        ops.add("students", "fin");
+        ops.add("students", "world");
+        ops.add("students", "world");
+        ops.add("students", "fi");
+        ops.add("students", "fi");
+
+        //method member for search set with key that already add
+        assertEquals(3, Objects.requireNonNull(ops.members("students")).size());
+        assertThat(ops.members("students"), hasItems("fin", "world", "fi"));
+
+        //method to delete all data from redis base on key
+        template.delete("students");
     }
 }
