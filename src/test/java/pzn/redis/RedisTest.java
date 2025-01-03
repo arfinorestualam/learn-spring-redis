@@ -81,4 +81,7 @@ public class RedisTest {
         //method to delete all data from redis base on key
         template.delete("students");
     }
+
+    //test for using and manipulate sorted set using z set operation
+
 }
