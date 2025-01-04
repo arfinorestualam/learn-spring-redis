@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.*;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,5 +98,27 @@ public class RedisTest {
         assertEquals("budi", Objects.requireNonNull(ops.popMax("score")).getValue());
 
         template.delete("score");
+    }
+
+    //test for using and manipulate hash using hash operation
+    @Test
+    void hash() {
+        HashOperations<String, Object, Object> ops = template.opsForHash();
+        ops.put("user:1", "id", "1");
+        ops.put("user:1", "name", "fin");
+        ops.put("user:1", "email", "fin@bro.com");
+
+        assertEquals("1", ops.get("user:1", "id"));
+        assertEquals("fin", ops.get("user:1", "name"));
+        assertEquals("fin@bro.com", ops.get("user:1", "email"));
+
+        //if you already make map, use putAll, like this :
+//        Map<Object, Object> map = new HashMap<>();
+//        map.put("id","1");
+//        map.put("name","fin");
+//        map.put("email","fin@bro.com");
+//        ops.putAll("user:1", map);
+
+        template.delete("user:1");
     }
 }
