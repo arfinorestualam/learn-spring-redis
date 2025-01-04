@@ -3,10 +3,7 @@ package pzn.redis;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.SetOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.*;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -83,5 +80,21 @@ public class RedisTest {
     }
 
     //test for using and manipulate sorted set using z set operation
+    @Test
+    void zSet() {
+        ZSetOperations<String, String> ops = template.opsForZSet();
+        //in z set, if we make the value same but the score is different
+        //it will treat like different data
+        ops.add("score", "eko", 100);
+        ops.add("score", "budi", 85);
+        ops.add("score", "bri", 90);
 
+        // if we want to take away the highest score we can use popMax.
+        // if you want the lowest score use popMin
+        assertEquals("eko", Objects.requireNonNull(ops.popMax("score")).getValue());
+        assertEquals("bri", Objects.requireNonNull(ops.popMax("score")).getValue());
+        assertEquals("budi", Objects.requireNonNull(ops.popMax("score")).getValue());
+
+        template.delete("score");
+    }
 }
