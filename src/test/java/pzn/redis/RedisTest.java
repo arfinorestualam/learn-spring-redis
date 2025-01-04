@@ -3,7 +3,9 @@ package pzn.redis;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.geo.*;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -118,5 +120,28 @@ public class RedisTest {
 //        ops.putAll("user:1", map);
 
         template.delete("user:1");
+    }
+
+    //test for using and manipulate geo using geo operation
+    @Test
+    void geo() {
+        GeoOperations<String, String> ops = template.opsForGeo();
+        ops.add("sellers", new Point(106.822702, -6.177590), "toko a");
+        ops.add("sellers", new Point(106.820889, -6.174964), "toko b");
+
+        Distance distance = ops.distance("selers", "toko a", "toko b", Metrics.KILOMETERS);
+        assert distance != null;
+        assertEquals(0.3543, distance.getValue());
+
+        //to search by radius
+        GeoResults<RedisGeoCommands.GeoLocation<String>> sellers = ops
+                .search("sellers", new Circle(
+                        new Point(106.821825, -6.175105),
+                        new Distance(5, Metrics.KILOMETERS)));
+
+        assert sellers != null;
+        assertEquals(2, sellers.getContent().size());
+        assertEquals("toko a", sellers.getContent().get(0).getContent().getName());
+        assertEquals("toko b", sellers.getContent().get(1).getContent().getName());
     }
 }
