@@ -143,5 +143,20 @@ public class RedisTest {
         assertEquals(2, sellers.getContent().size());
         assertEquals("toko a", sellers.getContent().get(0).getContent().getName());
         assertEquals("toko b", sellers.getContent().get(1).getContent().getName());
+
+        template.delete("sellers");
+    }
+
+    //test for using and manipulate hyperloglog using hyperloglog operation
+    @Test
+    void hyperLogLog() {
+        HyperLogLogOperations<String, String> ops = template.opsForHyperLogLog();
+        ops.add("traffics", "fin", "fi", "if");
+        ops.add("traffics", "fin", "end", "kul");
+        ops.add("traffics", "end", "kul", "luk");
+        //same with set, if the value has been added, it'll not count the same data
+
+        assertEquals(6L, ops.size("traffics"));
+        template.delete("traffics");
     }
 }
