@@ -3,6 +3,7 @@ package pzn.redis;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
@@ -155,8 +156,32 @@ public class RedisTest {
         ops.add("traffics", "fin", "end", "kul");
         ops.add("traffics", "end", "kul", "luk");
         //same with set, if the value has been added, it'll not count the same data
+        //the different is, we only now the total of unique data, but we can get the data
 
         assertEquals(6L, ops.size("traffics"));
         template.delete("traffics");
+    }
+
+    //test for using and manipulate transaction
+    //in transaction the connection to redis must be same, one connection per transaction, or it'll fail
+    @Test
+    void transaction() {
+        //using this execute so we run the transaction in one connection
+        template.execute(new SessionCallback<>() {
+            @Override
+            public Object execute(RedisOperations redisOperations) throws DataAccessException {
+                redisOperations.multi();
+                redisOperations.opsForValue().set("test1", "fin", Duration.ofSeconds(2));
+                redisOperations.opsForValue().set("test2", "budi", Duration.ofSeconds(2));
+                //you must execute using this :
+                redisOperations.exec();
+                return null;
+            }
+        });
+
+        assertEquals("fin", template.opsForValue().get("test1"));
+        assertEquals("budi", template.opsForValue().get("test2"));
+        template.delete("test1");
+        template.delete("test2");
     }
 }
