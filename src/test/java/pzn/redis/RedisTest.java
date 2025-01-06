@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -183,5 +184,26 @@ public class RedisTest {
         assertEquals("budi", template.opsForValue().get("test2"));
         template.delete("test1");
         template.delete("test2");
+    }
+
+    //test for using and manipulate pipeline
+    @Test
+    void pipeline() {
+        //so make a list that will execute using pipeline but different from transaction
+        //there is no multi() or exec()
+        List<Object> list = template.executePipelined(new SessionCallback<>() {
+            @Override
+            public Object execute(RedisOperations redisOperations) throws DataAccessException {
+                redisOperations.opsForValue().set("test1", "fin", Duration.ofSeconds(2));
+                redisOperations.opsForValue().set("test2", "budi", Duration.ofSeconds(2));
+                redisOperations.opsForValue().set("test3", "kul", Duration.ofSeconds(2));
+                redisOperations.opsForValue().set("test4", "fin", Duration.ofSeconds(2));
+                return null;
+            }
+        });
+
+        assertThat(list, hasSize(4));
+        assertThat(list, hasItem(true));
+        assertThat(list, not(hasItem(false)));
     }
 }
