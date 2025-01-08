@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.*;
+import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -205,5 +207,21 @@ public class RedisTest {
         assertThat(list, hasSize(4));
         assertThat(list, hasItem(true));
         assertThat(list, not(hasItem(false)));
+    }
+
+    //test for using and manipulate stream data using stream operations
+    // 1. testing publish in stream :
+    @Test
+    void publish() {
+        StreamOperations<String, Object, Object> ops = template.opsForStream();
+        MapRecord<String, String, String> record = MapRecord.create("stream-1", Map.of(
+                "name", "fin",
+                "address", "indonesia"
+        ));
+
+        for (int i = 0; i<10; i++) {
+            ops.add(record);
+        }
+        template.delete("stream-1");
     }
 }
