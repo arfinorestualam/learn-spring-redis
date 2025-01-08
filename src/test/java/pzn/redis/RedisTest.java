@@ -5,7 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.*;
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 
@@ -210,7 +214,7 @@ public class RedisTest {
     }
 
     //test for using and manipulate stream data using stream operations
-    // 1. testing publish in stream :
+    // 1. testing publish (add data) in stream :
     @Test
     void publish() {
         StreamOperations<String, Object, Object> ops = template.opsForStream();
@@ -222,6 +226,30 @@ public class RedisTest {
         for (int i = 0; i<10; i++) {
             ops.add(record);
         }
+    }
+
+    // 2. testing subscribe (read data) in stream :
+    @Test
+    void subscribe() {
+        StreamOperations<String, Object, Object> ops = template.opsForStream();
+        try {
+            ops.createGroup("stream-1", "sample-group");
+        } catch (RedisSystemException exception) {
+            //group already exists
+        }
+
+        //to read data from first, not last consumed
+        List<MapRecord<String, Object, Object>> records = ops.read(Consumer.from("sample-group", "sample-1"),
+                StreamOffset.create("stream-1", ReadOffset.from("0")));
+
+        assert records != null;
+        for (MapRecord<String, Object, Object> record : records) {
+            System.out.println(record);
+        }
+        // Delete consumer group
+        ops.destroyGroup("stream-1", "sample-group");
+
+        // Optionally delete the stream if you no longer need it
         template.delete("stream-1");
     }
 }
