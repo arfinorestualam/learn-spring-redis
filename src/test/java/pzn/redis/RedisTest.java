@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -251,5 +253,21 @@ public class RedisTest {
 
         // Optionally delete the stream if you no longer need it
         template.delete("stream-1");
+    }
+
+    //test for using and manipulate pubsub
+    //explanation about different stream listener and pubsub : https://chatgpt.com/share/6783b468-8284-800a-8783-c87b84dfd9f7
+    @Test
+    void pubSub() {
+        Objects.requireNonNull(template.getConnectionFactory()).getConnection().subscribe(
+                (message, pattern) ->
+                        System.out.println("Message received: " + new String(message.getBody())),
+                "my-channel".getBytes());
+
+        for (int i = 0; i < 10; i++) {
+            //pubsub doesn't have operations, so use convertAndSend
+            template.convertAndSend("my-channel", "Hello Wir: " + i);
+            //pubsub doesn't have consumer group, so it'll get data continuously
+        }
     }
 }
