@@ -12,6 +12,9 @@ import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -60,6 +63,20 @@ public class BelajarSpringRedisApplication {
                 .build();
 
         return container.register(readRequest, orderListener);
+    }
+
+    //make listener container for pubsub, the difference between this container and stream listener container
+    //the pubsub container can get new data only, but stream, can get whatever data you need (last consumed, or with different clause)
+
+    @Bean
+    //yes, it's using bean too
+    public RedisMessageListenerContainer messageListenerContainer(RedisConnectionFactory connectionFactory
+                                                                  , CustomerListener customerListener) {
+        var container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(customerListener, new ChannelTopic("customers"));
+        return container;
+        //it's simpler than stream container
     }
 
     public static void main(String[] args) {
