@@ -76,6 +76,7 @@ public class BelajarSpringRedisApplication {
         container.addMessageListener(customerListener, new ChannelTopic("customers"));
         return container;
         //it's simpler than stream container
+        //we don't need to subscribe, cause pubsub will always get data, doesn't have any clause
     }
 
     public static void main(String[] args) {
