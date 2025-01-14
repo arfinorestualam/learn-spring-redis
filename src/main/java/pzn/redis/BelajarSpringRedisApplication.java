@@ -14,6 +14,7 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,6 +25,8 @@ import java.time.Duration;
 @SpringBootApplication
 @EnableScheduling
 @EnableCaching
+//add this on application to enable feature repository on redis:
+@EnableRedisRepositories
 public class BelajarSpringRedisApplication {
 
     @Autowired
