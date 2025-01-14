@@ -1,6 +1,7 @@
 package pzn.redis;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -25,4 +26,11 @@ public class ProductService {
     }
     //in above example, we want to change id of product but without using getProduct method
     //so if the save method run, it'll update the id of the product.
+
+    //to remove cache if we didn't use ttl config in properties, we can use
+    //annotation cache evict
+    @CacheEvict(value = "products", key = "#id")
+    public void remove(String id) {
+        log.info("Remove Product {}", id);
+    }
 }
