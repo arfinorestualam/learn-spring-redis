@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.support.collections.RedisList;
 
 import java.time.Duration;
 import java.util.List;
@@ -268,4 +269,23 @@ public class RedisTest {
             //pubsub doesn't have consumer group, so it'll get data continuously
         }
     }
+
+    //test for using and manipulate java collection list on redis list
+    @Test
+    void redisList() {
+        //this list collection connect to redis using redis list :
+        List<String> list = RedisList.create("names", template);
+        list.add("fin");
+        //if you add to list, it also add to redis
+        list.add("budi");
+        list.add("kul");
+
+        List<String> names = template.opsForList().range("names", 0,-1);
+
+        assertThat(list, hasItems("fin", "budi", "kul"));
+        assertThat(names, hasItems("fin", "budi", "kul"));
+        //so if you have collection, you can use redis list to add data, cause it provide java list collection
+    }
+
+
 }
