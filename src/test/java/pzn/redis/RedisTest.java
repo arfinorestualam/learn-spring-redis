@@ -13,11 +13,14 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.support.collections.RedisList;
+import org.springframework.data.redis.support.collections.RedisSet;
+import org.springframework.data.redis.support.collections.RedisZSet;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -279,13 +282,43 @@ public class RedisTest {
         //if you add to list, it also add to redis
         list.add("budi");
         list.add("kul");
+        assertThat(list, hasItems("fin", "budi", "kul"));
 
         List<String> names = template.opsForList().range("names", 0,-1);
 
-        assertThat(list, hasItems("fin", "budi", "kul"));
         assertThat(names, hasItems("fin", "budi", "kul"));
         //so if you have collection, you can use redis list to add data, cause it provide java list collection
     }
 
+    //test for using and manipulate java collection set on redis set
+    @Test
+    void redisSet() {
+        Set<String> set = RedisSet.create("traffic", template);
+        set.addAll(Set.of("fin", "budi", "kul"));
+        set.addAll(Set.of("fun", "budi", "kul"));
+        assertThat(set, hasItems("fin", "budi", "kul", "fun"));
 
+        Set<String> members = template.opsForSet().members("traffic");
+        assertThat(members, hasItems("fin", "budi", "kul", "fun"));
+
+        //same with the redisList(), RedisSet will connect to Set, when you add data to Set
+        //it'll add data to redis too
+    }
+
+    //test for using and manipulate java collection set on redisZSet
+    @Test
+    void redisZSet() {
+        RedisZSet<String> set = RedisZSet.create("winner", template);
+        set.add("fin", 100);
+        set.add("budi", 85);
+        set.add("kul", 90);
+        assertThat(set, hasItems("fin", "budi", "kul"));
+
+        Set<String> members = template.opsForZSet().range("winner", 0,-1);
+        assertThat(members, hasItems("fin", "budi", "kul"));
+
+        assertEquals("fin", set.popLast());
+        assertEquals("kul", set.popLast());
+        assertEquals("budi", set.popLast());
+    }
 }
