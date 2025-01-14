@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.keyvalue.annotation.KeySpace;
+import org.springframework.data.redis.core.TimeToLive;
+
+import java.util.concurrent.TimeUnit;
 
 @Data
 @AllArgsConstructor
@@ -22,4 +25,9 @@ public class Product {
     private String name;
 
     private Long price;
+
+    //Entity time-to-live (TTL): This annotation determines how long the data will exist before being erased.
+    //If you set it to -1, the data will never be deleted from Redis.
+    @TimeToLive(unit = TimeUnit.SECONDS)
+    private long ttl = -1L;
 }

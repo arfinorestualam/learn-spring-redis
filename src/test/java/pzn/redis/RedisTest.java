@@ -359,4 +359,21 @@ public class RedisTest {
         Product product2 = productRepository.findById("1").get();
         assertEquals(product, product2);
     }
+
+    //test ttl in redis
+    @Test
+    void ttl() throws InterruptedException {
+        Product product = Product.builder()
+                .id("1")
+                .name("mie")
+                .price(20_000L)
+                .ttl(3L)
+                .build();
+        productRepository.save(product);
+
+        assertTrue(productRepository.findById("1").isPresent());
+        Thread.sleep(Duration.ofSeconds(5));
+        //the data will be erased after 5 Seconds
+        assertFalse(productRepository.findById("1").isPresent());
+    }
 }
