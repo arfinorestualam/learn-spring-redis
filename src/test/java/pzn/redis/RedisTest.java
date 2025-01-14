@@ -42,6 +42,9 @@ public class RedisTest {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private ProductService productService;
+
     @Test
     void redisTemplate() {
         assertNotNull(template);
@@ -403,5 +406,17 @@ public class RedisTest {
         //all this operation is run in redis too, it added data, and delete data both in cache and redis
         //why it's run in redis too, caused we implement the prefix on properties for redis, if we change it
         //will run on the type that we choose.
+    }
+
+    //test declarative cache
+    @Test
+    void findProduct() {
+        Product product = productService.getProduct("P-001");
+        assertNotNull(product);
+        assertEquals("P-001", product.getId());
+        assertEquals("sample", product.getName());
+
+        Product product2 = productService.getProduct("P-001");
+        assertEquals(product, product2);
     }
 }
