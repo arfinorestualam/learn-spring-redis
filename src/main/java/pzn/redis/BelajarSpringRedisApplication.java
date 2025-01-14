@@ -24,9 +24,12 @@ import java.time.Duration;
 @Slf4j
 @SpringBootApplication
 @EnableScheduling
-@EnableCaching
 //add this on application to enable feature repository on redis:
 @EnableRedisRepositories
+//to enable feature caching, we need add annotation like this :
+@EnableCaching
+//this feature for saving data temporarily in memory, like cache, and we can
+//integrate with redis, to save the cache automatically
 public class BelajarSpringRedisApplication {
 
     @Autowired
