@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.keyvalue.annotation.KeySpace;
 import org.springframework.data.redis.core.TimeToLive;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -16,7 +17,10 @@ import java.util.concurrent.TimeUnit;
 @Builder
 //if in entity jpa we use @Entity, in redis we use @KeySpace to define it
 @KeySpace("products")
-public class Product {
+public class Product implements Serializable {
+    //we implement serializable because we want to save it in redis cache manager, which will save it in binary
+    //that's why this entity need to implement serializable, so it can be store as binary
+
     //still we need @Id as the identity
     @Id
     private String id;
