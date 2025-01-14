@@ -419,4 +419,17 @@ public class RedisTest {
         Product product2 = productService.getProduct("P-001");
         assertEquals(product, product2);
     }
+
+    //test update cache using cache put
+    @Test
+    void saveProduct() {
+        Product product = Product.builder().id("P002").name("sample").build();
+        productService.save(product);
+
+        Product product2 = productService.getProduct("P002");
+        assertEquals(product, product2);
+        //if we run this test, the first save method will show the result
+        //but for the getProduct method will not show the result, because it took the data from
+        //the cache, not running the method.
+    }
 }
