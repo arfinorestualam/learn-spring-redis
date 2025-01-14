@@ -3,6 +3,8 @@ package pzn.redis;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.RedisSystemException;
@@ -36,6 +38,9 @@ public class RedisTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Test
     void redisTemplate() {
@@ -375,5 +380,28 @@ public class RedisTest {
         Thread.sleep(Duration.ofSeconds(5));
         //the data will be erased after 5 Seconds
         assertFalse(productRepository.findById("1").isPresent());
+    }
+
+    //test caching to redis
+    @Test
+    void cache() {
+        Cache sample = cacheManager.getCache("scores");
+        //to add using put
+        assert sample != null;
+        sample.put("fin",100);
+        sample.put("budi",85);
+
+        //to get data, we can use get, and convert it with what, in this example, we convert it to int
+        assertEquals(100, sample.get("fin", Integer.class));
+        assertEquals(85, sample.get("budi", Integer.class));
+
+        //to delete using evict
+        sample.evict("fin");
+        sample.evict("budi");
+        assertNull(sample.get("fin", Integer.class));
+        assertNull(sample.get("budi", Integer.class));
+        //all this operation is run in redis too, it added data, and delete data both in cache and redis
+        //why it's run in redis too, caused we implement the prefix on properties for redis, if we change it
+        //will run on the type that we choose.
     }
 }
