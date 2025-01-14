@@ -432,4 +432,21 @@ public class RedisTest {
         //but for the getProduct method will not show the result, because it took the data from
         //the cache, not running the method.
     }
+
+    //test remove cache using cache evict
+    @Test
+    void removeProduct() {
+        Product product = productService.getProduct("P003");
+        //it'll run for the first time, because no data in cache
+        assertNotNull(product);
+
+        productService.remove("P003");
+        //the data delete from cache
+
+        Product product2 = productService.getProduct("P003");
+        //it'll run for the first time, the data deleted from cache
+        //if we don't use remove method, this product2, will get data from the cache
+        //no need run the method first.
+        assertEquals(product, product2);
+    }
 }
