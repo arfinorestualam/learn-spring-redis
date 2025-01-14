@@ -17,6 +17,7 @@ public class Product {
     //still we need @Id as the identity
     @Id
     private String id;
+    //in redis, the data will be saved like keyspace:id, ex: products:1
 
     private String name;
 
