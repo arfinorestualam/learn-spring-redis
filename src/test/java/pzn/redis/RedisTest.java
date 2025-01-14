@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.support.collections.DefaultRedisMap;
 import org.springframework.data.redis.support.collections.RedisList;
 import org.springframework.data.redis.support.collections.RedisSet;
 import org.springframework.data.redis.support.collections.RedisZSet;
@@ -320,5 +321,19 @@ public class RedisTest {
         assertEquals("fin", set.popLast());
         assertEquals("kul", set.popLast());
         assertEquals("budi", set.popLast());
+    }
+
+    //test for using and manipulate java collection map on redisMap
+    @Test
+    void redisMap() {
+        Map<String,String> map = new DefaultRedisMap<>("user:1", template);
+        map.put("name", "fin");
+        map.put("address", "indonesia");
+        assertThat(map, hasEntry("name", "fin"));
+        assertThat(map, hasEntry("address", "indonesia"));
+
+        Map<Object,Object> user = template.opsForHash().entries("user:1");
+        assertThat(user, hasEntry("name", "fin"));
+        assertThat(user, hasEntry("address", "indonesia"));
     }
 }
