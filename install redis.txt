@@ -12,3 +12,4 @@ i'm using mac m1, so i'll share how to install redis on mac apple chip.
     brew services stop redis
 
 note : please run the redis server, the test will fail if you didn't do that.
+test
